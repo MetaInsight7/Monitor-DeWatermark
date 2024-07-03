@@ -8,9 +8,6 @@ from PIL import Image
 from .lama_inpaint import inpaint_img_with_lama
 from .utils import load_img_to_array, dilate_mask
 
-def save_array_to_img(img_arr, img_p):
-    Image.fromarray(img_arr.astype(np.uint8)).save(img_p)
-
 def mask2(image, boxes):
     image = cv2.imread(image)
     height, width = image.shape[:2]
@@ -47,6 +44,13 @@ def setup_args(parser):
         "--lama_ckpt", type=str, default='inpaint/big-lama/',
         help="The path to the lama checkpoint.",
     )
+    parser.add_argument(
+        "--input_folder", type=str, default="./test_img", 
+        help="Input your image folder.")
+    
+    parser.add_argument(
+        "--output_folder", type=str, default='./out', 
+                        help="Path to save image folder.")
 import os
 import yaml
 from omegaconf import OmegaConf
@@ -92,5 +96,5 @@ def remove(img, boxes):
 
     img_inpainted = inpaint_img_with_lama(
         img_1, mask,args.lama_config,  model, device=device)
-
+    
     return img_inpainted

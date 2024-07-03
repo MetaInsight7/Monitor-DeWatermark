@@ -1,8 +1,20 @@
+import os
 import cv2
 import numpy as np
 from PIL import Image
 from typing import Any, Dict, List
 
+def get_img(input_folder):
+    if os.path.isfile(input_folder):
+        img_path_list = [input_folder]
+    else:
+        img_name_list = os.listdir(input_folder)
+        img_path_list = [os.path.join(input_folder, img_name) for img_name in img_name_list
+                          if img_name.endswith('.jpg') or img_name.endswith('.png')]
+    return img_path_list
+
+def save_array_to_img(img_arr, img_p):
+    Image.fromarray(img_arr.astype(np.uint8)).save(img_p)
 
 def load_img_to_array(img_p):
     img = Image.open(img_p)
