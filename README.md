@@ -39,4 +39,4 @@ python infer_folder.py  --model model.onnx --input_folder ./img --output_folder 
 - `--output_folder`:  Path to the folder where the results will be saved.
 - `--conf_thres`:  Confidence threshold
 - `--iou_thres`:  NMS IoU threshold
-- `--iou_thres`:  Flag to determine whether to save img options are `True` or `False`, default is `False`.
+- `--save_img`:  Flag to determine whether to save img options are `True` or `False`, default is `False`.
