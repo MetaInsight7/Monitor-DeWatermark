@@ -1,6 +1,6 @@
 import os
 import argparse
-from detection import infer
+from detections import infer
 from inpaint import remove_mask,utils
 
 # Create a parser
