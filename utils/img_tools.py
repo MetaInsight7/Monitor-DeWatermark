@@ -1,3 +1,4 @@
+import os
 import cv2
 import numpy as np
 
@@ -69,3 +70,12 @@ class LetterBox:
         labels["instances"].scale(*ratio)
         labels["instances"].add_padding(padw, padh)
         return labels
+
+def get_img(input_folder):
+    if os.path.isfile(input_folder):
+        img_path_list = [input_folder]
+    else:
+        img_name_list = os.listdir(input_folder)
+        img_path_list = [os.path.join(input_folder, img_name) for img_name in img_name_list
+                          if img_name.endswith('.jpg') or img_name.endswith('.png')]
+    return img_path_list

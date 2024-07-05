@@ -1,7 +1,6 @@
-import os
 from tqdm import tqdm
 import argparse
-from modules.models.inpainting.utils.tools import get_img, save_array_to_img
+from utils.img_tools import get_img
 from modules.models.inpainting.inpainting import Inpanting
 from modules.models.detect.detect import YOLOv8
 from omegaconf import OmegaConf
@@ -26,8 +25,8 @@ img_path_list = get_img(args.input_folder)
 # Process each image
 for img_path in tqdm(img_path_list):
     # task1：Use target detection to draw a box
-    detect_result = detect.infer(img_path)
+    detect_result = detect(img_path)
     boxes = detect_result['box']
     # task2：Restore the picture using inpaint
-    img_inpainted = inpaint.infer(img_path, boxes)
+    img_inpainted = inpaint(img_path, boxes)
     
