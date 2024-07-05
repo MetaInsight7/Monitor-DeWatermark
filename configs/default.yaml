@@ -1,0 +1,42 @@
+device: cuda
+out_key: inpainted
+dilate_kernel_size: 25 
+
+inpaint:
+  model_path: ./modules/weights/inpainting/best.ckpt
+  save_result: True
+
+detect:
+  model_path: ./modules/weights/detect/detect.onnx
+  conf_thres: 0.5
+  iou_thres: 0.5
+  save_result: True
+
+
+training_model:
+  kind: default
+  concat_mask: true
+
+generator:
+  kind: ffc_resnet
+  input_nc: 4
+  output_nc: 3
+  ngf: 64
+  n_downsampling: 3
+  n_blocks: 18
+  add_out_act: sigmoid
+  init_conv_kwargs:
+    ratio_gin: 0
+    ratio_gout: 0
+    enable_lfu: false
+  downsample_conv_kwargs:
+    ratio_gin: ${generator.init_conv_kwargs.ratio_gout}
+    ratio_gout: ${generator.downsample_conv_kwargs.ratio_gin}
+    enable_lfu: false
+  resnet_conv_kwargs:
+    ratio_gin: 0.75
+    ratio_gout: ${generator.resnet_conv_kwargs.ratio_gin}
+    enable_lfu: false
+
+
+
