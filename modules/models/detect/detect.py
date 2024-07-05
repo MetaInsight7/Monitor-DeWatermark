@@ -5,7 +5,7 @@ import onnxruntime as ort
 from utils.img_tools import LetterBox
 
 
-class YOLOv8:
+class YOLOv8():
     """YOLOv8 object detection model class for handling inference and visualization."""
 
     def __init__(self, config):
@@ -24,6 +24,7 @@ class YOLOv8:
         self.iou_thres = config.detect.iou_thres
         self.output_folder = os.path.join(config.output_folder,"detect")
         self.save_result = config.detect.save_result 
+        self.session  = ort.InferenceSession(self.onnx_model, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])
 
         # Load the class names from the COCO dataset
         self.classes = {0: 'time', 1: 'place', 2: 'task'}
@@ -188,15 +189,8 @@ class YOLOv8:
         # Return the modified input image
         return res, self.img
 
-    def get_img(self):
-        if os.path.isfile(self.input_folder):
-            img_path_list = [self.input_folder]
-        else:
-            img_name_list = os.listdir(self.input_folder)
-            img_path_list = [os.path.join(self.input_folder, img_name) for img_name in img_name_list if img_name.endswith('.jpg') or img_name.endswith('.png')]
-        return img_path_list
 
-    def infer(self, img):
+    def __call__(self, img):
         """
         Performs inference using an ONNX model and returns the output image with drawn detections.
 
@@ -204,10 +198,9 @@ class YOLOv8:
             output_img: The output image with drawn detections.
         """
         # Create an inference session using the ONNX model and specify execution providers
-        session = ort.InferenceSession(self.onnx_model, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])
 
         # Get the model inputs
-        model_inputs = session.get_inputs()
+        model_inputs = self.session.get_inputs()
 
         # Store the shape of the input for later use
         input_shape = model_inputs[0].shape
@@ -218,7 +211,7 @@ class YOLOv8:
         img_data = self.preprocess(img)
 
         # Run inference using the preprocessed image data
-        outputs = session.run(None, {model_inputs[0].name: img_data})
+        outputs = self.session.run(None, {model_inputs[0].name: img_data})
 
         # Perform post-processing on the outputs to obtain output image.
         detect_res, output_img  = self.postprocess(img, outputs)  # output image

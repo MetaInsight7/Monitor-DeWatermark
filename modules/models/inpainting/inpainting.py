@@ -3,9 +3,8 @@ import os
 import torch
 import cv2
 import numpy as np
-from omegaconf import OmegaConf
 from .model.lama_model import DefaultInpaintingTrainingModule
-from .utils.tools import load_img_to_array, dilate_mask, move_to_device, pad_tensor_to_modulo, save_array_to_img
+from .utils.tools import dilate_mask, move_to_device, pad_tensor_to_modulo
 
 
 class Inpanting(nn.Module):
@@ -16,11 +15,6 @@ class Inpanting(nn.Module):
         self.save_result = config.inpaint.save_result
         self.output_folder = os.path.join(config.output_folder, "inpaint")
         self.model = self.load_model(config).to(self.device) 
-        # # 假设 model 是一个 PyTorch Lightning 模型实例
-        # # 保存模型权重
-        torch.save(self.model.state_dict(), './bbb.pth')
-        
-
         self.model.eval()
     
     def load_model(self, config):
@@ -33,12 +27,11 @@ class Inpanting(nn.Module):
             raise ValueError(f'Unknown trainer module {kind}')
         
         state = torch.load(config.inpaint.model_path, map_location='cpu')
-        model.load_state_dict(state['state_dict'], strict=False)
+        model.load_state_dict(state, strict=False)
         return model
 
-    def mask_img(self, image, boxes):
-        image = cv2.imread(image)
-        height, width = image.shape[:2]
+    def mask_img(self, img, boxes):
+        height, width = img.shape[:2]
 
         mask = np.zeros((height, width), dtype=np.uint8)
         for box in boxes:
@@ -81,17 +74,18 @@ class Inpanting(nn.Module):
         cur_res = np.clip(cur_res * 255, 0, 255).astype('uint8')
         return cur_res
     
-    def infer(self, img, boxes):
-        mask = self.mask_img(img, boxes)
+    def forward(self, img, boxes):
         img_path = img
-        img = load_img_to_array(img)
+
+        img = cv2.imread(img)
+        mask = self.mask_img(img, boxes)
 
         if self.config.dilate_kernel_size is not None:
             mask = dilate_mask(mask, self.config.dilate_kernel_size)
         img_inpainted = self.inpaint_img_with_lama(img, mask)
         if self.save_result:
             os.makedirs(self.output_folder, exist_ok=True)
-            save_array_to_img(img_inpainted, os.path.join(self.output_folder, os.path.basename(img_path)))
+            cv2.imwrite(os.path.join(self.output_folder, os.path.basename(img_path)), img_inpainted)
         
         return img_inpainted
 

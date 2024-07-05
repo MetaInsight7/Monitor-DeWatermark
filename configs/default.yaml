@@ -3,7 +3,7 @@ out_key: inpainted
 dilate_kernel_size: 25 
 
 inpaint:
-  model_path: ./modules/weights/inpainting/best.ckpt
+  model_path: ./modules/weights/inpainting/inpainting.pth
   save_result: True
 
 detect:
