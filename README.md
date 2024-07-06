@@ -3,7 +3,7 @@
 - [中文](README_zh.md)
 
 <div align="center">
-<h1>Spatio-Temporal-Anonymized</h1>
+<h1>Monitor-DeWatermark</h1>
 </div>
 <h3>An innovative and efficient watermark removal method designed to accurately identify and elegantly remove watermarks from images</h3>
 
@@ -39,7 +39,11 @@ The watermark removal process is divided into two steps:
 
  - The first step is [Watermark Detection](./out/detect), with the main code located in the `modules/models/detect/` folder, the weights file is saved in the `modules/weights/detect/` folder.
 
- - The second step is [Watermark Removal](./out/inpaint), with the main code located in the `modules/models/inpainting/` folder. Since the weight file will be updated periodically... No upload, you can download it from [here🤗](https://huggingface.co/gityihang/inpaint/upload/main ) and put it in this directory.
+ - The second step is [Watermark Removal](./out/inpaint), with the main code located in the `modules/models/inpainting/` folder. Since the weight file will be updated periodically... No upload.
+
+[🤗 Detect weight download (verification code: k1gv)](https://pan.baidu.com/s/1c7Wa6tDIE0UgP55cmXmT4Q?pwd=k1gv)
+
+[🤗 Inpaint weight download (verification code: 7urm)](https://pan.baidu.com/s/1QLX6S5ssMDLsUsYslHgDng?pwd=7urm)
 
 <h2>📝 Usage</h2>
 

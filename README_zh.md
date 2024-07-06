@@ -3,7 +3,7 @@
 - [中文](README_zh.md)
 
 <div align="center">
-<h1>穿越时空的匿名 </h1>
+<h1>监控去水印 </h1>
 </div>
 <h3>一种创新且高效的去水印方法，旨在精确识别并优雅去除图片中的水印</h3>
 
@@ -43,7 +43,12 @@
  ，主要代码在 `modules/models/detect` 文件夹下，权重文件保存在 `modules/weights/detect`文件夹下。
  
  - 第二步[去除水印](./out/inpaint)
- ，主要代码在 `modules/models/inpainting` 文件夹下，权重文件保存在 `modules/weights/inpainting`文件夹下，由于权重文件将进行周期性的更新...✈️，没有上传，可以在[这里🤗](https://huggingface.co/gityihang/inpaint/upload/main)下载，并放入该目录下。
+ ，主要代码在 `modules/models/inpainting` 文件夹下，权重文件保存在 `modules/weights/inpainting`文件夹下，由于权重文件将进行周期性的更新...✈️，没有上传
+
+[🤗 detect权重下载（提取码：k1gv）](https://pan.baidu.com/s/1c7Wa6tDIE0UgP55cmXmT4Q?pwd=k1gv)
+
+[🤗 inpaint权重下载（提取码：7urm）](https://pan.baidu.com/s/1QLX6S5ssMDLsUsYslHgDng?pwd=7urm)
+
 <h2>📝 使用</h2>
 
 <details open>
