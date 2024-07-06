@@ -7,9 +7,9 @@ inpaint:
   save_result: True
 
 detect:
-  model_path: ./modules/weights/detect/detect.onnx
+  model_path: ./modules/weights/detect/small.onnx
   conf_thres: 0.5
-  iou_thres: 0.5
+  iou_thres: 0.7
   save_result: True
 
 

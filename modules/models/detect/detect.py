@@ -80,6 +80,7 @@ class YOLOv8():
         Returns:
             image_data: Preprocessed image data ready for inference.
         """
+
         # Read the input image using OpenCV
         self.img = cv2.imread(img)
 
@@ -88,6 +89,7 @@ class YOLOv8():
 
         # Convert the image color space from BGR to RGB
         img = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
+
 
         # resize img
         letterbox = LetterBox(new_shape=[self.input_width, self.input_height], auto=False, stride=32)
@@ -106,7 +108,7 @@ class YOLOv8():
         return image_data
 
 
-    def postprocess(self, input_image, output):
+    def postprocess(self, img_path, output):
         """
         Performs post-processing on the model's output to extract bounding boxes, scores, and class IDs.
 
@@ -165,7 +167,7 @@ class YOLOv8():
         )
 
         # Iterate over the selected indices after non-maximum suppression
-        res = {'img_name':input_image, 'box':[], 'score':[], 'class_id':[]}
+        res = {'img_name':img_path, 'box':[], 'score':[], 'class_id':[]}
         
         for i in indices:
             # Get the box, score, and class ID corresponding to the index
@@ -190,7 +192,7 @@ class YOLOv8():
         return res, self.img
 
 
-    def __call__(self, img):
+    def __call__(self, img_path):
         """
         Performs inference using an ONNX model and returns the output image with drawn detections.
 
@@ -208,14 +210,14 @@ class YOLOv8():
         self.input_height = input_shape[3]
 
         # Preprocess the image data
-        img_data = self.preprocess(img)
+        img_data = self.preprocess(img_path)
 
         # Run inference using the preprocessed image data
         outputs = self.session.run(None, {model_inputs[0].name: img_data})
 
         # Perform post-processing on the outputs to obtain output image.
-        detect_res, output_img  = self.postprocess(img, outputs)  # output image
+        detect_res, output_img  = self.postprocess(img_path, outputs)  # output image
         if self.save_result:
             os.makedirs(self.output_folder, exist_ok=True)
-            cv2.imwrite(os.path.join(self.output_folder, os.path.basename(img)), output_img)
+            cv2.imwrite(os.path.join(self.output_folder, os.path.basename(img_path)), output_img)
         return detect_res

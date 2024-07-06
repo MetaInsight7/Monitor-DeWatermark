@@ -74,18 +74,16 @@ class Inpanting(nn.Module):
         cur_res = np.clip(cur_res * 255, 0, 255).astype('uint8')
         return cur_res
     
-    def forward(self, img, boxes):
-        img_path = img
-
-        img = cv2.imread(img)
+    def forward(self, img_path, boxes):
+        img = cv2.imread(img_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         mask = self.mask_img(img, boxes)
-
         if self.config.dilate_kernel_size is not None:
             mask = dilate_mask(mask, self.config.dilate_kernel_size)
         img_inpainted = self.inpaint_img_with_lama(img, mask)
         if self.save_result:
             os.makedirs(self.output_folder, exist_ok=True)
-            cv2.imwrite(os.path.join(self.output_folder, os.path.basename(img_path)), img_inpainted)
+            cv2.imwrite(os.path.join(self.output_folder, os.path.basename(img_path)), cv2.cvtColor(img_inpainted, cv2.COLOR_RGB2BGR) )
         
         return img_inpainted
 

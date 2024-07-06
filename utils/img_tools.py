@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-
+from collections import defaultdict
 
 class LetterBox:
     """Resize image and padding for detection, instance segmentation, pose."""
@@ -79,3 +79,36 @@ def get_img(input_folder):
         img_path_list = [os.path.join(input_folder, img_name) for img_name in img_name_list
                           if img_name.endswith('.jpg') or img_name.endswith('.png')]
     return img_path_list
+
+
+def save_labels(result, save_dir):
+    """
+    保存目标检测的标签信息,按照class_id顺序写入
+    
+    Args:
+        results (dict): 目标检测的推理结果,格式同您提供的
+        save_dir (str): 保存标签文件的目录
+    """
+    # 获取图像名称
+    img_name = result['img_name']
+    boxes = result['box']
+    class_ids = result['class_id']
+    scores = result['score']
+
+    img = cv2.imread(img_name)
+    img_h= img.shape[0]
+    img_w = img.shape[1]
+    
+    # 使用defaultdict分类存储标签信息
+    label_dict = defaultdict(list)
+    for box, class_id, score in zip(boxes, class_ids, scores):
+        x, y, w, h = [int(v) for v in box]
+        label_str = f"{class_id} {(x + w /2) / img_w} {(y + h /2) / img_h} {w / img_w} {h /img_h}"
+        label_dict[class_id].append(label_str)
+    # 按class_id顺序写入标签文件
+    os.makedirs(save_dir, exist_ok=True)
+    label_file = os.path.join(save_dir, os.path.basename(img_name).split('.')[0] + '.txt')
+    with open(label_file, 'w') as f:
+        for class_id in sorted(label_dict.keys()):
+            f.write('\n'.join(label_dict[class_id]))
+            f.write('\n')

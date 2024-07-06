@@ -57,10 +57,7 @@ The watermark removal process is divided into two steps:
 
 Requires `python>=3.8`
 ```bash
-conda create -n sta python==3.8
-conda activate sta
-python -m pip install -r requirements.txt 
-
+pip install -r requirements.txt 
 ```
 </details>
 
@@ -72,8 +69,8 @@ Run the project with the following command:
 python main.py --input_folder '/path/to/your/input_folder' --output_folder '/path/to/your/output_folder' --config './configs/default.yaml'
 
 ```
-- Will'/path/to/your/input_folder'Switch to the folder you want to watermark✔️
-- Will'/path/to/your/output_folder'Switch to the saved folder🔜
+- '/path/to/your/input_folder' change the watermark folder ✔️
+- '/path/to/your/output_folder' change the output folder🔜
 
 </details>
 

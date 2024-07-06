@@ -61,9 +61,7 @@
 
 要求 `python>=3.8`
 ```bash
-conda create -n sta python==3.8
-conda activate sta
-python -m pip install -r requirements.txt 
+pip install -r requirements.txt 
 ```
 </details>
 

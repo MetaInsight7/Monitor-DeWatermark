@@ -29,3 +29,9 @@ ENV/
 
 # OSX dir files
 .DS_Store
+
+# model
+*.ckpt
+*.pt
+*.pth
+*.onnx
