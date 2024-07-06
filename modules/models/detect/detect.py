@@ -5,10 +5,10 @@ import onnxruntime as ort
 from utils.img_tools import LetterBox
 
 
-class YOLOv8:
+class YOLOv8():
     """YOLOv8 object detection model class for handling inference and visualization."""
 
-    def __init__(self, onnx_model, input_folder, output_folder, confidence_thres, iou_thres, save_flag):
+    def __init__(self, config):
         """
         Initializes an instance of the YOLOv8 class.
 
@@ -18,12 +18,13 @@ class YOLOv8:
             confidence_thres: Confidence threshold for filtering detections.
             iou_thres: IoU (Intersection over Union) threshold for non-maximum suppression.
         """
-        self.onnx_model = onnx_model
-        self.input_folder = input_folder
-        self.output_folder = output_folder
-        self.confidence_thres = confidence_thres
-        self.iou_thres = iou_thres
-        self.save_flag = save_flag
+      
+        self.onnx_model = config.detect.model_path
+        self.conf_thres = config.detect.conf_thres
+        self.iou_thres = config.detect.iou_thres
+        self.output_folder = os.path.join(config.output_folder,"detect")
+        self.save_result = config.detect.save_result 
+        self.session  = ort.InferenceSession(self.onnx_model, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])
 
         # Load the class names from the COCO dataset
         self.classes = {0: 'time', 1: 'place', 2: 'task'}
@@ -137,7 +138,7 @@ class YOLOv8:
             max_score = np.amax(classes_scores)
 
             # If the maximum score is above the confidence threshold
-            if max_score >= self.confidence_thres:
+            if max_score >= self.conf_thres:
                 # Get the class ID with the highest score
                 class_id = np.argmax(classes_scores)
 
@@ -154,7 +155,7 @@ class YOLOv8:
                 boxes.append([x1, y1, w, h])
 
         # Apply non-maximum suppression to filter out overlapping bounding boxes
-        indices = cv2.dnn.NMSBoxes(boxes, scores, self.confidence_thres, self.iou_thres)
+        indices = cv2.dnn.NMSBoxes(boxes, scores, self.conf_thres, self.iou_thres)
 
         # Calculate the scaling factors for the bounding box coordinates
         gain = min(self.input_width / self.img_width, self.input_height / self.img_height)
@@ -182,21 +183,14 @@ class YOLOv8:
             res['class_id'].append(class_id)
 
             # Draw the detection on the input image
-            if self.save_flag:
+            if self.save_result:
                 self.draw_detections(self.img, box, score, class_id)
 
         # Return the modified input image
         return res, self.img
 
-    def get_img(self):
-        if os.path.isfile(self.input_folder):
-            img_path_list = [self.input_folder]
-        else:
-            img_name_list = os.listdir(self.input_folder)
-            img_path_list = [os.path.join(self.input_folder, img_name) for img_name in img_name_list if img_name.endswith('.jpg') or img_name.endswith('.png')]
-        return img_path_list
 
-    def main(self):
+    def __call__(self, img):
         """
         Performs inference using an ONNX model and returns the output image with drawn detections.
 
@@ -204,10 +198,9 @@ class YOLOv8:
             output_img: The output image with drawn detections.
         """
         # Create an inference session using the ONNX model and specify execution providers
-        session = ort.InferenceSession(self.onnx_model, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])
 
         # Get the model inputs
-        model_inputs = session.get_inputs()
+        model_inputs = self.session.get_inputs()
 
         # Store the shape of the input for later use
         input_shape = model_inputs[0].shape
@@ -215,17 +208,14 @@ class YOLOv8:
         self.input_height = input_shape[3]
 
         # Preprocess the image data
-        img_list = self.get_img()
-        for img in img_list:
-            img_data = self.preprocess(img)
+        img_data = self.preprocess(img)
 
-            # Run inference using the preprocessed image data
-            outputs = session.run(None, {model_inputs[0].name: img_data})
+        # Run inference using the preprocessed image data
+        outputs = self.session.run(None, {model_inputs[0].name: img_data})
 
-            # Perform post-processing on the outputs to obtain output image.
-            res,output_img  = self.postprocess(img, outputs)  # output image
-            if self.save_flag:
-                os.makedirs(self.output_folder, exist_ok=True)
-                cv2.imwrite(os.path.join(self.output_folder, os.path.basename(img)), output_img)
-
-            print(res)
+        # Perform post-processing on the outputs to obtain output image.
+        detect_res, output_img  = self.postprocess(img, outputs)  # output image
+        if self.save_result:
+            os.makedirs(self.output_folder, exist_ok=True)
+            cv2.imwrite(os.path.join(self.output_folder, os.path.basename(img)), output_img)
+        return detect_res
